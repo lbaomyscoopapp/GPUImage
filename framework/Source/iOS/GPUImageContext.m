@@ -29,14 +29,14 @@ static void *openGLESContextQueueKey;
 {
     if (!(self = [super init]))
     {
-        return nil;
+		return nil;
     }
-    
-    openGLESContextQueueKey = &openGLESContextQueueKey;
+
+	openGLESContextQueueKey = &openGLESContextQueueKey;
     _contextQueue = dispatch_queue_create("com.sunsetlakesoftware.GPUImage.openGLESContextQueue", GPUImageDefaultQueueAttribute());
     
 #if OS_OBJECT_USE_OBJC
-    dispatch_queue_set_specific(_contextQueue, openGLESContextQueueKey, (__bridge void *)self, NULL);
+	dispatch_queue_set_specific(_contextQueue, openGLESContextQueueKey, (__bridge void *)self, NULL);
 #endif
     shaderProgramCache = [[NSMutableDictionary alloc] init];
     shaderProgramUsageHistory = [[NSMutableArray alloc] init];
@@ -44,14 +44,8 @@ static void *openGLESContextQueueKey;
     return self;
 }
 
-- (void)dealloc {
-    if (_coreVideoTextureCache != NULL) {
-        CFRelease(_coreVideoTextureCache);
-    }
-}
-
 + (void *)contextKey {
-    return openGLESContextQueueKey;
+	return openGLESContextQueueKey;
 }
 
 // Based on Colin Wheeler's example here: http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html
@@ -120,7 +114,7 @@ static void *openGLESContextQueueKey;
         [self useImageProcessingContext];
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
     });
-    
+
     return maxTextureSize;
 }
 
@@ -128,7 +122,7 @@ static void *openGLESContextQueueKey;
 {
     static dispatch_once_t pred;
     static GLint maxTextureUnits = 0;
-    
+
     dispatch_once(&pred, ^{
         [self useImageProcessingContext];
         glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
@@ -141,12 +135,12 @@ static void *openGLESContextQueueKey;
 {
     static dispatch_once_t pred;
     static GLint maxVaryingVectors = 0;
-    
+
     dispatch_once(&pred, ^{
         [self useImageProcessingContext];
         glGetIntegerv(GL_MAX_VARYING_VECTORS, &maxVaryingVectors);
     });
-    
+
     return maxVaryingVectors;
 }
 
@@ -154,14 +148,14 @@ static void *openGLESContextQueueKey;
 {
     static dispatch_once_t pred;
     static NSArray *extensionNames = nil;
-    
+
     // Cache extensions for later quick reference, since this won't change for a given device
     dispatch_once(&pred, ^{
         [GPUImageContext useImageProcessingContext];
         NSString *extensionsString = [NSString stringWithCString:(const char *)glGetString(GL_EXTENSIONS) encoding:NSASCIIStringEncoding];
         extensionNames = [extensionsString componentsSeparatedByString:@" "];
     });
-    
+
     return [extensionNames containsObject:extension];
 }
 
@@ -211,7 +205,7 @@ static void *openGLESContextQueueKey;
         adjustedSize.height = (CGFloat)maxTextureSize;
         adjustedSize.width = ((CGFloat)maxTextureSize / inputSize.height) * inputSize.width;
     }
-    
+
     return adjustedSize;
 }
 
@@ -224,21 +218,21 @@ static void *openGLESContextQueueKey;
 {
     NSString *lookupKeyForShaderProgram = [NSString stringWithFormat:@"V: %@ - F: %@", vertexShaderString, fragmentShaderString];
     GLProgram *programFromCache = [shaderProgramCache objectForKey:lookupKeyForShaderProgram];
-    
+
     if (programFromCache == nil)
     {
         programFromCache = [[GLProgram alloc] initWithVertexShaderString:vertexShaderString fragmentShaderString:fragmentShaderString];
         [shaderProgramCache setObject:programFromCache forKey:lookupKeyForShaderProgram];
-        //        [shaderProgramUsageHistory addObject:lookupKeyForShaderProgram];
-        //        if ([shaderProgramUsageHistory count] >= MAXSHADERPROGRAMSALLOWEDINCACHE)
-        //        {
-        //            for (NSUInteger currentShaderProgramRemovedFromCache = 0; currentShaderProgramRemovedFromCache < 10; currentShaderProgramRemovedFromCache++)
-        //            {
-        //                NSString *shaderProgramToRemoveFromCache = [shaderProgramUsageHistory objectAtIndex:0];
-        //                [shaderProgramUsageHistory removeObjectAtIndex:0];
-        //                [shaderProgramCache removeObjectForKey:shaderProgramToRemoveFromCache];
-        //            }
-        //        }
+//        [shaderProgramUsageHistory addObject:lookupKeyForShaderProgram];
+//        if ([shaderProgramUsageHistory count] >= MAXSHADERPROGRAMSALLOWEDINCACHE)
+//        {
+//            for (NSUInteger currentShaderProgramRemovedFromCache = 0; currentShaderProgramRemovedFromCache < 10; currentShaderProgramRemovedFromCache++)
+//            {
+//                NSString *shaderProgramToRemoveFromCache = [shaderProgramUsageHistory objectAtIndex:0];
+//                [shaderProgramUsageHistory removeObjectAtIndex:0];
+//                [shaderProgramCache removeObjectForKey:shaderProgramToRemoveFromCache];
+//            }
+//        }
     }
     
     return programFromCache;
@@ -258,6 +252,7 @@ static void *openGLESContextQueueKey;
     return context;
 }
 
+- (void)dealloc { CFRelease(_coreVideoTextureCache); }
 
 #pragma mark -
 #pragma mark Manage fast texture upload
@@ -272,7 +267,7 @@ static void *openGLESContextQueueKey;
 #pragma clang diagnostic ignored "-Wtautological-pointer-compare"
     return (CVOpenGLESTextureCacheCreate != NULL);
 #pragma clang diagnostic pop
-    
+
 #endif
 }
 
@@ -307,7 +302,7 @@ static void *openGLESContextQueueKey;
         {
             NSAssert(NO, @"Error at CVOpenGLESTextureCacheCreate %d", err);
         }
-        
+
     }
     
     return _coreVideoTextureCache;
